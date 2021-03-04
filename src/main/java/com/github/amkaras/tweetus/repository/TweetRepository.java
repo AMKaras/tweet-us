@@ -19,6 +19,6 @@ public interface TweetRepository extends JpaRepository<Tweet, String> {
     List<Tweet> findByStateAndAnalyzedWithOpinionFinderAndLanguageOrderByRetweetCount(
             TweetState tweetState, boolean analyzedWithOpinionFinder, String language, Pageable pageable);
 
-    List<Tweet> findByBelongsToTrainingSetAndAnalyzedWithOpinionFinderOrderByRetweetCount(
-            boolean belongsToTrainingSet, boolean analyzedWithOpinionFinder, Pageable pageable);
+    List<Tweet> findByBelongsToTrainingSetAndAnalyzedWithOpinionFinderAndLanguageOrderByRetweetCount(
+            boolean belongsToTrainingSet, boolean analyzedWithOpinionFinder, String language, Pageable pageable);
 }

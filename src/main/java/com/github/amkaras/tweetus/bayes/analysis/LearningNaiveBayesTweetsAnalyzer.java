@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.github.amkaras.tweetus.bayes.category.ClassificationType.BINARY;
 import static java.util.stream.Collectors.toList;
@@ -40,7 +41,7 @@ public class LearningNaiveBayesTweetsAnalyzer {
     public void analyze() {
 
         log.info("Fetching tweets from training set");
-        var trainingSetTweets = tweetService.findBelongingToTrainingSet(100);
+        var trainingSetTweets = tweetService.findBelongingToTrainingSet(1000);
         log.info("Fetched {} tweets", trainingSetTweets.size());
         log.info("Fetching analysis for training set tweets");
         var opinionFinderAnalysis = opinionFinderAnalysisService.findByEntityIds(
@@ -56,7 +57,7 @@ public class LearningNaiveBayesTweetsAnalyzer {
         log.info("Processed. Dictionary is {}", dictionary);
 
         log.info("Fetching tweets to classify");
-        var tweetsToBeClassified = tweetService.findAnalyzedNotBelongingToTrainingSet(10);
+        var tweetsToBeClassified = tweetService.findAnalyzedNotBelongingToTrainingSet(100);
         log.info("Fetched {} tweets. Classifying...", tweetsToBeClassified.size());
         var classificationResult = algorithm.classify(tweetsToBeClassified, dictionary);
         log.info("Classified {} tweets. Fetching analysis for comparison", classificationResult.size());
@@ -70,9 +71,13 @@ public class LearningNaiveBayesTweetsAnalyzer {
         double consistentClassificationCount = 0.0;
         double totalClassificationsCount = 0.0;
 
-        for (Map.Entry<Tweet, ClassificationCategory> entry : classificationResult.entrySet()) {
+        for (Map.Entry<Tweet, Optional<ClassificationCategory>> entry : classificationResult.entrySet()) {
             Tweet tweet = entry.getKey();
-            ClassificationCategory category = entry.getValue();
+            Optional<ClassificationCategory> category = entry.getValue();
+            if (category.isEmpty()) {
+                log.info("Cannot select category for tweet {}: {}", tweet.getId(), tweet.getContent());
+                continue;
+            }
             OpinionFinderAnalysis opinionFinderAnalysisForClassifiedTweet = classifiedTweetsAnalysis.stream()
                     .filter(analysis -> analysis.getEntityId().equals(tweet.getId()))
                     .findFirst()
@@ -83,7 +88,7 @@ public class LearningNaiveBayesTweetsAnalyzer {
                             opinionFinderAnalysisForClassifiedTweet.getPolarityClassifiers()));
             log.info("Tweet {} [{}] classified by Naive Bayes algorithm as {}. OpinionFinder classified it as {}",
                     tweet.getId(), tweet.getContent(), category, opinionFinderClassification);
-            if (category == opinionFinderClassification) {
+            if (category.get() == opinionFinderClassification) {
                 consistentClassificationCount += 1.0;
             }
             totalClassificationsCount += 1.0;

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.NEGATIVE;
 import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.NEUTRAL;
@@ -26,13 +27,13 @@ public class NaiveBayesClassificationAlgorithmTest {
 
     private Tweet tweet;
     private Map<ClassificationCategory, Map<String, Long>> dictionary;
-    private ClassificationCategory expectedCategory;
+    private Optional<ClassificationCategory> expectedCategory;
 
     private ClassificationAlgorithm algorithm;
 
     public NaiveBayesClassificationAlgorithmTest(Tweet tweet,
                                                  Map<ClassificationCategory, Map<String, Long>> dictionary,
-                                                 ClassificationCategory expectedCategory) {
+                                                 Optional<ClassificationCategory> expectedCategory) {
         this.tweet = tweet;
         this.dictionary = dictionary;
         this.expectedCategory = expectedCategory;
@@ -55,7 +56,7 @@ public class NaiveBayesClassificationAlgorithmTest {
                                 WEAK_POSITIVE, Map.of("heart", 5L),
                                 POSITIVE, Map.of(),
                                 STRONG_POSITIVE, Map.of("better", 2L)),
-                        STRONG_NEGATIVE
+                        Optional.empty()
                 }
         });
     }

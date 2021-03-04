@@ -64,14 +64,14 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public List<Tweet> findBelongingToTrainingSet(int maxResults) {
-        return tweetRepository.findByBelongsToTrainingSetAndAnalyzedWithOpinionFinderOrderByRetweetCount(
-                true, true, PageRequest.of(0, maxResults));
+        return tweetRepository.findByBelongsToTrainingSetAndAnalyzedWithOpinionFinderAndLanguageOrderByRetweetCount(
+                true, true, LANG_EN, PageRequest.of(0, maxResults));
     }
 
     @Override
     public List<Tweet> findAnalyzedNotBelongingToTrainingSet(int maxResults) {
-        return tweetRepository.findByBelongsToTrainingSetAndAnalyzedWithOpinionFinderOrderByRetweetCount(
-                false, true, PageRequest.of(0, maxResults));
+        return tweetRepository.findByBelongsToTrainingSetAndAnalyzedWithOpinionFinderAndLanguageOrderByRetweetCount(
+                false, true, LANG_EN, PageRequest.of(0, maxResults));
     }
 
     @Override

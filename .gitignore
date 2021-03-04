@@ -1,7 +1,7 @@
 *.properties
-*.log
 *.txt
-*.iml
-opinionfinderv2.0/*
+*.xml
+*.log
 target/*
-.idea/*
+/.idea/
+/opinionfinderv2.0/
