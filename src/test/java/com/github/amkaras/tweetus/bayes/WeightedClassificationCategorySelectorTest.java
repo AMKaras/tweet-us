@@ -13,7 +13,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.*;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.POSITIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.WEAK_NEGATIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.WEAK_POSITIVE;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertEquals;
 

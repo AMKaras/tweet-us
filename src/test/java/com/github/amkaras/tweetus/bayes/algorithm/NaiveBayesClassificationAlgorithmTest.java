@@ -12,7 +12,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.*;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.NEGATIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.NEUTRAL;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.POSITIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.STRONG_NEGATIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.STRONG_POSITIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.WEAK_NEGATIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.WEAK_POSITIVE;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)

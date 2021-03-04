@@ -7,10 +7,20 @@ import com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCateg
 import com.github.amkaras.tweetus.entity.opinionfinder.DictionaryEntry;
 import com.github.amkaras.tweetus.entity.opinionfinder.OpinionFinderAnalysis;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.github.amkaras.tweetus.bayes.category.ClassificationType.BINARY;
-import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.*;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.NEGATIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.NEUTRAL;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.POSITIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.STRONG_NEGATIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.STRONG_POSITIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.WEAK_NEGATIVE;
+import static com.github.amkaras.tweetus.bayes.category.DifferentialClassificationCategory.WEAK_POSITIVE;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
 

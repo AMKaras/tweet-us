@@ -1,9 +1,17 @@
 package com.github.amkaras.tweetus.twitter;
 
-import com.github.amkaras.tweetus.entity.*;
+import com.github.amkaras.tweetus.entity.MentionedUser;
+import com.github.amkaras.tweetus.entity.ReferenceType;
+import com.github.amkaras.tweetus.entity.Tweet;
+import com.github.amkaras.tweetus.entity.TweetReference;
+import com.github.amkaras.tweetus.entity.TweetState;
 import com.github.amkaras.tweetus.service.TweetService;
+import com.github.amkaras.tweetus.twitter.model.Data;
 import com.github.amkaras.tweetus.twitter.model.Hashtag;
-import com.github.amkaras.tweetus.twitter.model.*;
+import com.github.amkaras.tweetus.twitter.model.Mention;
+import com.github.amkaras.tweetus.twitter.model.ReferencedTweet;
+import com.github.amkaras.tweetus.twitter.model.TweetPayload;
+import com.github.amkaras.tweetus.twitter.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

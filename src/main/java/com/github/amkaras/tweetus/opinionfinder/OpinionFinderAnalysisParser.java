@@ -12,7 +12,9 @@ import java.util.stream.Stream;
 
 import static java.lang.Integer.parseInt;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
 
 public class OpinionFinderAnalysisParser {
 
