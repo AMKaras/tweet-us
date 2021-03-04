@@ -15,7 +15,13 @@ public interface TweetService {
 
     void saveAll(Iterable<TweetReference> tweetReferences);
 
-    List<Tweet> findTweetsByIds(Iterable<String> tweetIds);
+    List<Tweet> findByState(TweetState state, int maxResults);
 
-    List<Tweet> findTweetsByState(TweetState state, int maxResults);
+    List<Tweet> findByStateAndIsAnalyzed(TweetState state, boolean isAnalyzed, int maxResults);
+
+    List<Tweet> findBelongingToTrainingSet(int maxResults);
+
+    List<Tweet> findAnalyzedNotBelongingToTrainingSet(int maxResults);
+
+    int countByStateAndAnalyzedWithOpinionFinder(TweetState state, boolean analyzedWithOpinionFinder);
 }

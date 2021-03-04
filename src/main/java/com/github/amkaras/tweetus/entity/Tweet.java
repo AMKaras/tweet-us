@@ -3,16 +3,7 @@ package com.github.amkaras.tweetus.entity;
 
 import com.github.amkaras.tweetus.entity.converter.TweetStateConverter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Set;
 
@@ -68,6 +59,12 @@ public class Tweet {
 
     @Column(name = "lang")
     private String language;
+
+    @Column(name = "analyzed_with_opinion_finder")
+    private boolean analyzedWithOpinionFinder;
+
+    @Column(name = "belongs_to_training_set")
+    private boolean belongsToTrainingSet;
 
     @OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Hashtag> hashtags;
@@ -193,6 +190,22 @@ public class Tweet {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public boolean isAnalyzedWithOpinionFinder() {
+        return analyzedWithOpinionFinder;
+    }
+
+    public void setAnalyzedWithOpinionFinder(boolean analyzedWithOpinionFinder) {
+        this.analyzedWithOpinionFinder = analyzedWithOpinionFinder;
+    }
+
+    public boolean isBelongsToTrainingSet() {
+        return belongsToTrainingSet;
+    }
+
+    public void setBelongsToTrainingSet(boolean belongsToTrainingSet) {
+        this.belongsToTrainingSet = belongsToTrainingSet;
     }
 
     public Set<Hashtag> getHashtags() {

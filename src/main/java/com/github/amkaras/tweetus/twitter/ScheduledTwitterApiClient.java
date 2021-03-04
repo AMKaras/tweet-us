@@ -1,10 +1,9 @@
-package com.github.amkaras.tweetus.api.client;
+package com.github.amkaras.tweetus.twitter;
 
-import com.github.amkaras.tweetus.api.model.TweetPayload;
-import com.github.amkaras.tweetus.api.service.TweetPayloadProcessor;
 import com.github.amkaras.tweetus.entity.Tweet;
 import com.github.amkaras.tweetus.entity.TweetState;
 import com.github.amkaras.tweetus.service.TweetService;
+import com.github.amkaras.tweetus.twitter.model.TweetPayload;
 import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -54,10 +52,10 @@ public class ScheduledTwitterApiClient {
         this.restTemplate = new RestTemplate(factory);
     }
 
-    @Scheduled(fixedDelayString = "${twitter.api.callInterval}")
+//    @Scheduled(fixedDelayString = "${twitter.api.callInterval}")
     public void fetchTweets() {
         var batchSize = 100;
-        var pendingTweets = tweetService.findTweetsByState(TweetState.PENDING, batchSize);
+        var pendingTweets = tweetService.findByState(TweetState.PENDING, batchSize);
         var token = getTokenAndUpdateCurrentIndex();
         var httpEntity = entityWithAuthHeader(token);
         int successfullyFetched = 0;

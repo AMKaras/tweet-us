@@ -1,0 +1,7 @@
+*.properties
+*.log
+*.txt
+*.iml
+opinionfinderv2.0/*
+target/*
+.idea/*

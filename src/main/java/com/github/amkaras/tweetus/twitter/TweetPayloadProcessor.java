@@ -1,21 +1,13 @@
-package com.github.amkaras.tweetus.api.service;
+package com.github.amkaras.tweetus.twitter;
 
-import com.github.amkaras.tweetus.api.model.Data;
-import com.github.amkaras.tweetus.api.model.Hashtag;
-import com.github.amkaras.tweetus.api.model.Mention;
-import com.github.amkaras.tweetus.api.model.ReferencedTweet;
-import com.github.amkaras.tweetus.api.model.TweetPayload;
-import com.github.amkaras.tweetus.api.model.User;
-import com.github.amkaras.tweetus.entity.MentionedUser;
-import com.github.amkaras.tweetus.entity.ReferenceType;
-import com.github.amkaras.tweetus.entity.Tweet;
-import com.github.amkaras.tweetus.entity.TweetReference;
-import com.github.amkaras.tweetus.entity.TweetState;
+import com.github.amkaras.tweetus.entity.*;
 import com.github.amkaras.tweetus.service.TweetService;
+import com.github.amkaras.tweetus.twitter.model.Hashtag;
+import com.github.amkaras.tweetus.twitter.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -26,7 +18,7 @@ import java.util.function.Function;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
-@Service
+@Component
 public class TweetPayloadProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(TweetPayloadProcessor.class);

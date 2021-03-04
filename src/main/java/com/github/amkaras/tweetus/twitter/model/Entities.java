@@ -1,4 +1,4 @@
-package com.github.amkaras.tweetus.api.model;
+package com.github.amkaras.tweetus.twitter.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

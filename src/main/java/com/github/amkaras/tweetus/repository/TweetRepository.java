@@ -11,5 +11,14 @@ import java.util.List;
 @Repository
 public interface TweetRepository extends JpaRepository<Tweet, String> {
 
+    int countByStateAndAnalyzedWithOpinionFinderAndLanguage(
+            TweetState state, boolean analyzedWithOpinionFinder, String language);
+
     List<Tweet> findByState(TweetState state, Pageable pageable);
+
+    List<Tweet> findByStateAndAnalyzedWithOpinionFinderAndLanguageOrderByRetweetCount(
+            TweetState tweetState, boolean analyzedWithOpinionFinder, String language, Pageable pageable);
+
+    List<Tweet> findByBelongsToTrainingSetAndAnalyzedWithOpinionFinderOrderByRetweetCount(
+            boolean belongsToTrainingSet, boolean analyzedWithOpinionFinder, Pageable pageable);
 }

@@ -8,8 +8,8 @@ import com.github.amkaras.tweetus.repository.TweetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +18,8 @@ import static java.util.stream.Collectors.toSet;
 @Transactional
 @Service
 public class TweetServiceImpl implements TweetService {
+
+    private static final String LANG_EN = "en";
 
     private final TweetRepository tweetRepository;
     private final ReferencedTweetRepository referencedTweetRepository;
@@ -50,12 +52,31 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
-    public List<Tweet> findTweetsByIds(Iterable<String> tweetIds) {
-        return tweetRepository.findAllById(tweetIds);
+    public List<Tweet> findByState(TweetState state, int maxResults) {
+        return tweetRepository.findByState(state, PageRequest.of(0, maxResults));
     }
 
     @Override
-    public List<Tweet> findTweetsByState(TweetState state, int maxResults) {
-        return tweetRepository.findByState(state, PageRequest.of(0, maxResults));
+    public List<Tweet> findByStateAndIsAnalyzed(TweetState state, boolean isAnalyzed, int maxResults) {
+        return tweetRepository.findByStateAndAnalyzedWithOpinionFinderAndLanguageOrderByRetweetCount(
+                state, isAnalyzed, LANG_EN, PageRequest.of(0, maxResults));
+    }
+
+    @Override
+    public List<Tweet> findBelongingToTrainingSet(int maxResults) {
+        return tweetRepository.findByBelongsToTrainingSetAndAnalyzedWithOpinionFinderOrderByRetweetCount(
+                true, true, PageRequest.of(0, maxResults));
+    }
+
+    @Override
+    public List<Tweet> findAnalyzedNotBelongingToTrainingSet(int maxResults) {
+        return tweetRepository.findByBelongsToTrainingSetAndAnalyzedWithOpinionFinderOrderByRetweetCount(
+                false, true, PageRequest.of(0, maxResults));
+    }
+
+    @Override
+    public int countByStateAndAnalyzedWithOpinionFinder(TweetState state, boolean analyzedWithOpinionFinder) {
+        return tweetRepository.countByStateAndAnalyzedWithOpinionFinderAndLanguage(
+                state, analyzedWithOpinionFinder, LANG_EN);
     }
 }
