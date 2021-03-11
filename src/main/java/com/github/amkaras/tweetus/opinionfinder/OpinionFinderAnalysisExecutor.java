@@ -1,16 +1,20 @@
 package com.github.amkaras.tweetus.opinionfinder;
 
-import com.github.amkaras.tweetus.entity.Tweet;
-import com.github.amkaras.tweetus.entity.TweetState;
-import com.github.amkaras.tweetus.entity.opinionfinder.AnalysisEntity;
-import com.github.amkaras.tweetus.service.OpinionFinderAnalysisService;
-import com.github.amkaras.tweetus.service.TweetService;
+import com.github.amkaras.tweetus.opinionfinder.entity.AnalysisEntity;
+import com.github.amkaras.tweetus.opinionfinder.entity.OpinionFinderAnalysis;
+import com.github.amkaras.tweetus.opinionfinder.service.OpinionFinderAnalysisService;
+import com.github.amkaras.tweetus.twitter.entity.Tweet;
+import com.github.amkaras.tweetus.twitter.entity.TweetState;
+import com.github.amkaras.tweetus.twitter.service.TweetService;
 import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,7 +36,7 @@ public class OpinionFinderAnalysisExecutor {
         this.tweetService = tweetService;
     }
 
-//    @Scheduled(fixedDelay = 1_000)
+    @Scheduled(fixedDelay = 1_000)
     public void analyzeTweets() {
         if (shouldProceedWithAnalysis.get()) {
             var batchSize = 100;
@@ -40,19 +44,23 @@ public class OpinionFinderAnalysisExecutor {
             var sw = Stopwatch.createStarted();
             var nonAnalyzedTweets = tweetService
                     .findByStateAndIsAnalyzed(availableTweetState.get(), false, batchSize);
+            final Set<OpinionFinderAnalysis> analyses = new HashSet<>(batchSize);
+            final Set<Tweet> analyzedTweets = new HashSet<>(batchSize);
             for (Tweet tweet : nonAnalyzedTweets) {
                 try {
                     var opinionFinderAnalysis = opinionFinderClient.analyze(tweet);
                     opinionFinderAnalysis.setEntity(AnalysisEntity.TWEET);
                     opinionFinderAnalysis.setEntityId(tweet.getId());
-                    opinionFinderAnalysisService.save(opinionFinderAnalysis);
+                    analyses.add(opinionFinderAnalysis);
                     tweet.setAnalyzedWithOpinionFinder(true);
-                    tweetService.save(tweet);
+                    analyzedTweets.add(tweet);
                     successfullyAnalyzedCount += 1;
                 } catch (Exception e) {
                     log.error("Error while analyzing tweet {}", tweet.getId(), e);
                 }
             }
+            opinionFinderAnalysisService.save(analyses);
+            tweetService.save(analyzedTweets);
             log.info("Successfully analyzed {} out of {} tweets in {}", successfullyAnalyzedCount, batchSize, sw.stop());
         }
     }

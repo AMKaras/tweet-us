@@ -1,9 +1,9 @@
 package com.github.amkaras.tweetus.twitter;
 
-import com.github.amkaras.tweetus.entity.Tweet;
-import com.github.amkaras.tweetus.entity.TweetState;
-import com.github.amkaras.tweetus.service.TweetService;
+import com.github.amkaras.tweetus.twitter.entity.Tweet;
+import com.github.amkaras.tweetus.twitter.entity.TweetState;
 import com.github.amkaras.tweetus.twitter.model.TweetPayload;
+import com.github.amkaras.tweetus.twitter.service.TweetService;
 import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

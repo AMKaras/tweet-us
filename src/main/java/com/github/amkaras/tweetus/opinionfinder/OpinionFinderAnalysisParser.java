@@ -1,8 +1,8 @@
 package com.github.amkaras.tweetus.opinionfinder;
 
-import com.github.amkaras.tweetus.entity.opinionfinder.DictionaryEntry;
-import com.github.amkaras.tweetus.entity.opinionfinder.PolarityClassifier;
-import com.github.amkaras.tweetus.entity.opinionfinder.SubjectiveClue;
+import com.github.amkaras.tweetus.opinionfinder.entity.DictionaryEntry;
+import com.github.amkaras.tweetus.opinionfinder.entity.PolarityClassifier;
+import com.github.amkaras.tweetus.opinionfinder.entity.SubjectiveClue;
 
 import java.util.List;
 import java.util.Map;

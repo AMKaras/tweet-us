@@ -1,17 +1,17 @@
 package com.github.amkaras.tweetus.twitter;
 
-import com.github.amkaras.tweetus.entity.MentionedUser;
-import com.github.amkaras.tweetus.entity.ReferenceType;
-import com.github.amkaras.tweetus.entity.Tweet;
-import com.github.amkaras.tweetus.entity.TweetReference;
-import com.github.amkaras.tweetus.entity.TweetState;
-import com.github.amkaras.tweetus.service.TweetService;
+import com.github.amkaras.tweetus.twitter.entity.MentionedUser;
+import com.github.amkaras.tweetus.twitter.entity.ReferenceType;
+import com.github.amkaras.tweetus.twitter.entity.Tweet;
+import com.github.amkaras.tweetus.twitter.entity.TweetReference;
+import com.github.amkaras.tweetus.twitter.entity.TweetState;
 import com.github.amkaras.tweetus.twitter.model.Data;
 import com.github.amkaras.tweetus.twitter.model.Hashtag;
 import com.github.amkaras.tweetus.twitter.model.Mention;
 import com.github.amkaras.tweetus.twitter.model.ReferencedTweet;
 import com.github.amkaras.tweetus.twitter.model.TweetPayload;
 import com.github.amkaras.tweetus.twitter.model.User;
+import com.github.amkaras.tweetus.twitter.service.TweetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,9 +160,9 @@ public class TweetPayloadProcessor {
         dbTweet.setLanguage(apiTweet.getLang());
     }
 
-    private Function<Hashtag, com.github.amkaras.tweetus.entity.Hashtag> apiToDbHashtag(Tweet tweet) {
+    private Function<Hashtag, com.github.amkaras.tweetus.twitter.entity.Hashtag> apiToDbHashtag(Tweet tweet) {
         return apiHashtag -> {
-            var dbHashtag = new com.github.amkaras.tweetus.entity.Hashtag();
+            var dbHashtag = new com.github.amkaras.tweetus.twitter.entity.Hashtag();
             dbHashtag.setTag(apiHashtag.getTag());
             dbHashtag.setTweet(tweet);
             return dbHashtag;

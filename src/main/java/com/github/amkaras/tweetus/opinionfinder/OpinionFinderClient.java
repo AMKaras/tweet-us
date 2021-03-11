@@ -1,7 +1,7 @@
 package com.github.amkaras.tweetus.opinionfinder;
 
-import com.github.amkaras.tweetus.entity.Tweet;
-import com.github.amkaras.tweetus.entity.opinionfinder.OpinionFinderAnalysis;
+import com.github.amkaras.tweetus.opinionfinder.entity.OpinionFinderAnalysis;
+import com.github.amkaras.tweetus.twitter.entity.Tweet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +29,8 @@ public class OpinionFinderClient {
 
     private static final String OPINION_FINDER_POLARITY_CLASSIFIER_FILENAME = "exp_polarity.txt";
     private static final Set<String> OPINION_FINDER_SUBJECTIVE_CLUE_FILENAMES = Set.of(
-            "subjclueslen1polar",
-            "subjcluesSentenceClassifiersOpinionFinderJune06"
+            "subjclueslen1polar"
+//            "subjcluesSentenceClassifiersOpinionFinderJune06"
     );
     private static final String OPINION_FINDER_ANALYSIS_FOLDER_SUFFIX = "_auto_anns";
 
