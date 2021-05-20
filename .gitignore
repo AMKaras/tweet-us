@@ -1,7 +1,9 @@
 *.properties
 *.txt
 *.xml
+*.iml
 *.log
 target/*
-/.idea/
-/opinionfinderv2.0/
+.idea/*
+opinionfinderv2.0/*
+/stanford-corenlp-4.2.2/
