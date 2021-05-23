@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.github.amkaras.tweetus.common.algorithm.knn.model.Document.Builder.documentBuilder;
 import static com.github.amkaras.tweetus.common.util.LoggingUtils.formatDocumentsLog;
@@ -36,6 +37,7 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
 
     private final StanfordLemmatizerClient lemmatizerClient;
     private Map<UUID, Document> documentsUniverse = new HashMap<>();
+    private List<Tweet> tweets = new CopyOnWriteArrayList<>();
 
     public KNNClassificationAlgorithm(StanfordLemmatizerClient lemmatizerClient) {
         this.lemmatizerClient = lemmatizerClient;
@@ -78,6 +80,7 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
         Map<DocumentWithTokenCompoundKey, Double> vectorsMatrix =
                 vectorsMatrix(distinctTokens, classifiedDocuments, Set.copyOf(documentsUniverse.values()));
 
+        this.tweets = tweets;
         return tweets.stream().collect(toMap(identity(),
                 tweet -> classifyTweet(tweet, distinctTokens, vectorsMatrix, classifiedDocuments, k)));
     }
@@ -123,7 +126,10 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
         Map<DocumentWithTokenCompoundKey, Double> vectorsMatrixForTestDocument =
                 vectorsMatrix(distinctTokens, Set.of(documentFromTweet), classifiedDocuments);
         log.info("Vectors matrix for test document is: {}", vectorsMatrixForTestDocument);
-        return categoryByNearestNeighbors(distinctTokens, vectorsMatrix, vectorsMatrixForTestDocument, k);
+        Optional<ClassificationCategory> category =
+                categoryByNearestNeighbors(distinctTokens, vectorsMatrix, vectorsMatrixForTestDocument, k);
+        log.info("Classified {} out of {} tweets", this.tweets.indexOf(tweet) + 1, this.tweets.size());
+        return category;
     }
 
     Optional<ClassificationCategory> categoryByNearestNeighbors(

@@ -1,6 +1,5 @@
 package com.github.amkaras.tweetus.external.twitter.entity;
 
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -13,7 +12,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
 import java.util.Set;
-
 
 @Entity
 @Table(name = "tweets")
@@ -78,6 +76,31 @@ public class Tweet {
 
     @OneToMany(mappedBy = "tweet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<MentionedUser> mentionedUsers;
+
+    public Tweet() {
+    }
+
+    public Tweet(Tweet tweet) {
+        this.id = tweet.getId();
+        this.state = tweet.getState();
+        this.collection = tweet.getCollection();
+        this.authorId = tweet.getAuthorId();
+        this.authorUsername = tweet.getAuthorUsername();
+        this.content = tweet.getContent();
+        this.conversationId = tweet.getConversationId();
+        this.retweetCount = tweet.getRetweetCount();
+        this.replyCount = tweet.getReplyCount();
+        this.likeCount = tweet.getLikeCount();
+        this.quoteCount = tweet.getQuoteCount();
+        this.createdAt = tweet.getCreatedAt();
+        this.source = tweet.getSource();
+        this.possiblySensitive = tweet.getPossiblySensitive();
+        this.language = tweet.getLanguage();
+        this.analyzedWithOpinionFinder = tweet.isAnalyzedWithOpinionFinder();
+        this.belongsToTrainingSet = tweet.isBelongsToTrainingSet();
+        this.hashtags = tweet.getHashtags();
+        this.mentionedUsers = tweet.getMentionedUsers();
+    }
 
     public String getId() {
         return id;

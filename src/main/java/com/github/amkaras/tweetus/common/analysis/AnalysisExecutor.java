@@ -70,8 +70,8 @@ public abstract class AnalysisExecutor {
         fetchAnalysesForTestSet();
     }
 
-    void compareResults(Map<Tweet, Optional<ClassificationCategory>> algorithmClassifications,
-                        ClassificationType type, Algorithm algorithm) {
+    AnalysisResults compareResults(Map<Tweet, Optional<ClassificationCategory>> algorithmClassifications,
+                                   ClassificationType type, Algorithm algorithm) {
 
         double consistentClassificationCount = 0.0;
         double totalClassificationsCount = 0.0;
@@ -102,6 +102,7 @@ public abstract class AnalysisExecutor {
         log.info("{} classifications were consistent for {}/{} analyses, which gives {}% accuracy", algorithm,
                 consistentClassificationCount, totalClassificationsCount,
                 (consistentClassificationCount * 100.0) / totalClassificationsCount);
+        return new AnalysisResults(consistentClassificationCount, totalClassificationsCount);
     }
 
     private void fetchAnalysesForTrainingSet() {

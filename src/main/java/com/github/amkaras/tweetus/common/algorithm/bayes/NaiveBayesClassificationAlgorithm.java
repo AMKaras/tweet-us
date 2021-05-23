@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
 import static com.github.amkaras.tweetus.common.util.FiltersFactory.atLeastThreeTokens;
@@ -28,6 +29,7 @@ public class NaiveBayesClassificationAlgorithm implements ClassificationAlgorith
     private static final Logger log = LoggerFactory.getLogger(NaiveBayesClassificationAlgorithm.class);
 
     private final StanfordLemmatizerClient lemmatizerClient;
+    private List<Tweet> tweets = new CopyOnWriteArrayList<>();
 
     public NaiveBayesClassificationAlgorithm(StanfordLemmatizerClient lemmatizerClient) {
         this.lemmatizerClient = lemmatizerClient;
@@ -42,6 +44,7 @@ public class NaiveBayesClassificationAlgorithm implements ClassificationAlgorith
     @Override
     public Map<Tweet, Optional<ClassificationCategory>> classify(
             List<Tweet> tweets, Map<ClassificationCategory, Map<String, Long>> dictionary, boolean lemmatizationEnabled) {
+        this.tweets = tweets;
         return tweets.stream()
                 .map(tweet -> entry(tweet, mapToTokens(lemmatizationEnabled).apply(tweet)))
                 .filter(atLeastThreeTokens())
@@ -71,6 +74,7 @@ public class NaiveBayesClassificationAlgorithm implements ClassificationAlgorith
 
         var mostProbableCategory = selectCategory(categoriesByProbability);
         log.info("Tweet classified as {}", mostProbableCategory);
+        log.info("Classified {} out of {} tweets", this.tweets.indexOf(tweetWithTokens.getKey()) + 1, this.tweets.size());
         return mostProbableCategory;
     }
 
