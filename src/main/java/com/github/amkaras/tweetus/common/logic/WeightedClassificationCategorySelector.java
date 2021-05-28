@@ -42,7 +42,7 @@ public class WeightedClassificationCategorySelector {
                         .sorted(comparing(Map.Entry::getValue))
                         .collect(toList());
         if (sorted.get(0).getValue().equals(sorted.get(1).getValue())) {
-            log.info("Cannot choose category, distances are equal for categories {} and {}",
+            log.debug("Cannot choose category, distances are equal for categories {} and {}",
                     sorted.get(0).getKey(), sorted.get(1).getKey());
             return Optional.empty();
         }

@@ -492,7 +492,7 @@ public class KNNClassificationAlgorithmTest {
         Stream.of(d1, d2, d3, d4, d5).forEach(document ->
                 log.info("Document {}: {} [{}]", document.getId(), document.getContent(), document.getCategory()));
         log.info("Document {}: {}\n", d6.getId(), d6.getContent());
-        Optional<? extends ClassificationCategory> categoryFor1 = knnAlgorithm.categoryByNearestNeighbors(tokens, matrix, vector, 1);
+        Optional<? extends ClassificationCategory> categoryFor1 = knnAlgorithm.categoryByNearestNeighbors(tokens, matrix, vector, 1, "ID");
         // then
         assertTrue(categoryFor1.isPresent());
         assertEquals(NEGATIVE, categoryFor1.get());
@@ -501,7 +501,7 @@ public class KNNClassificationAlgorithmTest {
         Stream.of(d1, d2, d3, d4, d5).forEach(document ->
                 log.info("Document {}: {} [{}]", document.getId(), document.getContent(), document.getCategory()));
         log.info("Document {}: {}\n", d6.getId(), d6.getContent());
-        Optional<? extends ClassificationCategory> categoryFor2 = knnAlgorithm.categoryByNearestNeighbors(tokens, matrix, vector, 2);
+        Optional<? extends ClassificationCategory> categoryFor2 = knnAlgorithm.categoryByNearestNeighbors(tokens, matrix, vector, 2, "ID");
         // then
         assertFalse(categoryFor2.isPresent());
 
@@ -509,7 +509,7 @@ public class KNNClassificationAlgorithmTest {
         Stream.of(d1, d2, d3, d4, d5).forEach(document ->
                 log.info("Document {}: {} [{}]", document.getId(), document.getContent(), document.getCategory()));
         log.info("Document {}: {}\n", d6.getId(), d6.getContent());
-        Optional<? extends ClassificationCategory> categoryFor3 = knnAlgorithm.categoryByNearestNeighbors(tokens, matrix, vector, 3);
+        Optional<? extends ClassificationCategory> categoryFor3 = knnAlgorithm.categoryByNearestNeighbors(tokens, matrix, vector, 3, "ID");
         // then
         assertTrue(categoryFor3.isPresent());
         assertEquals(POSITIVE, categoryFor3.get());

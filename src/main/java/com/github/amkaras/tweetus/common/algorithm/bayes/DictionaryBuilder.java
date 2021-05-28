@@ -85,7 +85,7 @@ public class DictionaryBuilder {
             if (lemmatizationEnabled && !containsWhitespace(token)) {
                 var lemmatizedToken = lemmatizerClient.lemmatize(token).get(0);
                 if (!lemmatizedToken.equals(token)) {
-                    log.info("Lemmatized token {} to {}", token, lemmatizedToken);
+                    log.debug("Lemmatized token {} to {}", token, lemmatizedToken);
                     token = lemmatizedToken;
                 }
             }

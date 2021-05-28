@@ -8,6 +8,7 @@ import com.github.amkaras.tweetus.common.model.ClassificationCategory;
 import com.github.amkaras.tweetus.common.util.Tokenizer;
 import com.github.amkaras.tweetus.external.stanfordnlp.StanfordLemmatizerClient;
 import com.github.amkaras.tweetus.external.twitter.entity.Tweet;
+import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.github.amkaras.tweetus.common.algorithm.knn.model.Document.Builder.documentBuilder;
 import static com.github.amkaras.tweetus.common.util.LoggingUtils.formatDocumentsLog;
@@ -63,10 +65,10 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
         if (lemmatizationEnabled) {
             tweets = tweets.stream()
                     .peek(tweet -> {
-                        log.info("Non lemmatized tweet {}: {}", tweet.getId(), tweet.getContent());
+                        log.debug("Non lemmatized tweet {}: {}", tweet.getId(), tweet.getContent());
                         String lemmatized = join(lemmatizerClient.lemmatize(tweet.getContent()));
                         tweet.setContent(lemmatized);
-                        log.info("Lemmatized tweet {}: {}", tweet.getId(), tweet.getContent());
+                        log.debug("Lemmatized tweet {}: {}", tweet.getId(), tweet.getContent());
                     })
                     .collect(toList());
         }
@@ -79,6 +81,7 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
 
         Map<DocumentWithTokenCompoundKey, Double> vectorsMatrix =
                 vectorsMatrix(distinctTokens, classifiedDocuments, Set.copyOf(documentsUniverse.values()));
+        log.debug("Vectors matrix is: {}", vectorsMatrix);
 
         this.tweets = tweets;
         return tweets.stream().collect(toMap(identity(),
@@ -88,17 +91,19 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
     Map<DocumentWithTokenCompoundKey, Double> vectorsMatrix(Set<String> distinctTokens,
                                                             Set<Document> documentsToBeIncludedInMatrix,
                                                             Set<Document> documentsUniverse) {
+        Stopwatch sw = Stopwatch.createStarted();
         Map<DocumentWithTokenCompoundKey, Double> vectorsMatrix = new LinkedHashMap<>();
         for (Document document : documentsToBeIncludedInMatrix) {
             for (String token : distinctTokens) {
                 vectorsMatrix.put(new DocumentWithTokenCompoundKey(document, token), TFIDF(token, document, documentsUniverse));
             }
         }
-        log.info("Vectors matrix is: {}", vectorsMatrix);
+        log.info("Vectors matrix calculated in {}", sw.stop());
         return vectorsMatrix;
     }
 
     double TFIDF(String distinctToken, Document document, Set<Document> documentsUniverse) {
+        Stopwatch sw = Stopwatch.createStarted();
         double tf = (double) Tokenizer.splitOnly(document.getContent()).stream()
                 .filter(maybeToken -> maybeToken.equals(distinctToken))
                 .count();
@@ -114,6 +119,10 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
         log.debug("Document{} {}: \"{}\", Token: \"{}\", TF-IDF: {}, TF: {}, DF: {}, Documents count: {}, Logarithm: {}",
                 document.getHumanName() == null ? "" : " " + document.getHumanName(), document.getId(),
                 document.getContent(), distinctToken, tfidf, tf, df, n, logarithm);
+        Stopwatch stop = sw.stop();
+        if (ThreadLocalRandom.current().nextInt(10_000) == 9999) {
+            log.info("TFIDF calculated in {}", stop);
+        }
         return tfidf;
     }
 
@@ -125,16 +134,18 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
                 .build();
         Map<DocumentWithTokenCompoundKey, Double> vectorsMatrixForTestDocument =
                 vectorsMatrix(distinctTokens, Set.of(documentFromTweet), classifiedDocuments);
-        log.info("Vectors matrix for test document is: {}", vectorsMatrixForTestDocument);
+        log.debug("Vectors matrix for test document is: {}", vectorsMatrixForTestDocument);
         Optional<ClassificationCategory> category =
-                categoryByNearestNeighbors(distinctTokens, vectorsMatrix, vectorsMatrixForTestDocument, k);
+                categoryByNearestNeighbors(distinctTokens, vectorsMatrix, vectorsMatrixForTestDocument, k, tweet.getId());
         log.info("Classified {} out of {} tweets", this.tweets.indexOf(tweet) + 1, this.tweets.size());
         return category;
     }
 
     Optional<ClassificationCategory> categoryByNearestNeighbors(
             Set<String> distinctTokens, Map<DocumentWithTokenCompoundKey, Double> vectorsMatrixForClassifiedDocuments,
-            Map<DocumentWithTokenCompoundKey, Double> vectorForTestDocument, int k) {
+            Map<DocumentWithTokenCompoundKey, Double> vectorForTestDocument, int k, String tweetId) {
+
+        Stopwatch categorySw = Stopwatch.createStarted();
 
         Set<UUID> documentIds = vectorsMatrixForClassifiedDocuments.keySet().stream()
                 .map(key -> key.getDocument().getId())
@@ -145,6 +156,7 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
             return Optional.empty();
         }
 
+        Stopwatch distancesSw = Stopwatch.createStarted();
         Map<UUID, Double> distancesFromDocuments = new HashMap<>();
         for (UUID id : documentIds) {
             Map<DocumentWithTokenCompoundKey, Double> vectorForClassifiedDocument =
@@ -157,17 +169,18 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
                     magnitude(vectorForTestDocument.values(), vectorForClassifiedDocument.values());
             double cosineSimilarity = dotProduct / magnitude;
             double cosineDistance = 1.0d - cosineSimilarity;
-            log.info("Document{} {}. Cosine distance: {}, cosine similarity: {}, dot product: {}, magnitude: {}",
+            log.debug("Document{} {}. Cosine distance: {}, cosine similarity: {}, dot product: {}, magnitude: {}",
                     !documentsUniverse.containsKey(id) || documentsUniverse.get(id).getHumanName() == null ?
                             "" : " " + documentsUniverse.get(id).getHumanName(),
                     id, cosineDistance, cosineSimilarity, dotProduct, magnitude);
             distancesFromDocuments.put(id, cosineDistance);
         }
-        log.info("Distances are: {}", formatDocumentsLog(documentsUniverse, distancesFromDocuments));
+        log.info("Distances calculated in {}. Map size is {}", distancesSw.stop(), distancesFromDocuments.size());
+        log.debug("Distances are: {}", formatDocumentsLog(documentsUniverse, distancesFromDocuments));
 
         try {
             Set<UUID> closestDocuments = closestDocuments(distancesFromDocuments, k);
-            log.info("Closest documents: {}", formatDocumentsLog(documentsUniverse, closestDocuments));
+            log.info("Closest documents for tweet {}: {}", tweetId, formatDocumentsLog(documentsUniverse, closestDocuments));
             Map<ClassificationCategory, Integer> closestCategoriesCount = closestDocuments.stream()
                     .map(id -> vectorsMatrixForClassifiedDocuments.keySet().stream()
                             .filter(key -> key.getDocument().getId().equals(id))
@@ -200,6 +213,8 @@ public class KNNClassificationAlgorithm implements ClassificationAlgorithm {
             log.error("Unable to determine closest documents for parameter K = {}. " +
                     "Exception message is: {}", k, e.getMessage());
             return Optional.empty();
+        } finally {
+            log.info("Category by nearest neighbors selected in {}", categorySw.stop());
         }
     }
 

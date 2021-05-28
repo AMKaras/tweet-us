@@ -78,23 +78,23 @@ public abstract class AnalysisExecutor {
 
         for (Map.Entry<Tweet, Optional<ClassificationCategory>> entry : algorithmClassifications.entrySet()) {
             Tweet tweet = entry.getKey();
-            Optional<ClassificationCategory> bayesClassification = entry.getValue();
-            if (bayesClassification.isEmpty()) {
-                log.info("Cannot select category using {} algorithm for tweet {}", algorithm, tweet.getId());
+            Optional<ClassificationCategory> maybeAlgorithmClassification = entry.getValue();
+            if (maybeAlgorithmClassification.isEmpty()) {
+                log.debug("Cannot select category using {} algorithm for tweet {}", algorithm, tweet.getId());
                 continue;
             }
             OpinionFinderAnalysis ofAnalysis = chooseByTweetId(testSetAnalyses, tweet.getId());
             var maybeOfClassification = categorySelector.select(
                     ofAnalysis.getSubjectiveClues(), ofAnalysis.getPolarityClassifiers());
             if (maybeOfClassification.isEmpty()) {
-                log.info("Cannot select category using OpinionFinder for tweet {}", tweet.getId());
+                log.debug("Cannot select category using OpinionFinder for tweet {}", tweet.getId());
                 continue;
             }
             var ofClassification = type == BINARY ?
                     BinaryClassificationCategory.map(maybeOfClassification.get()) : maybeOfClassification.get();
-            log.info("Tweet {} classified by algorithm {} as {}. OpinionFinder classified it as {}",
-                    tweet.getId(), algorithm, bayesClassification, ofClassification);
-            if (bayesClassification.get() == ofClassification) {
+            log.debug("Tweet {} classified by algorithm {} as {}. OpinionFinder classified it as {}",
+                    tweet.getId(), algorithm, maybeAlgorithmClassification, ofClassification);
+            if (maybeAlgorithmClassification.get() == ofClassification) {
                 consistentClassificationCount += 1.0;
             }
             totalClassificationsCount += 1.0;
@@ -109,12 +109,16 @@ public abstract class AnalysisExecutor {
         log.info("Fetching analyses for training set tweets");
         this.trainingSetAnalyses = fetchAnalysesForTweets(trainingSet);
         log.info("Fetched {} analyses", trainingSetAnalyses.size());
+        this.trainingSet = filterOutNotClassifiableWithOpinionFinder(this.trainingSet, this.trainingSetAnalyses);
+        this.trainingSetAnalyses = filterOutWhenTweetIdNotPresent(this.trainingSetAnalyses, this.trainingSet);
     }
 
     private void fetchAnalysesForTestSet() {
         log.info("Fetching analyses for test set tweets");
         this.testSetAnalyses = fetchAnalysesForTweets(testSet);
         log.info("Fetched {} analyses", testSetAnalyses.size());
+        this.testSet = filterOutNotClassifiableWithOpinionFinder(this.testSet, this.testSetAnalyses);
+        this.testSetAnalyses = filterOutWhenTweetIdNotPresent(this.testSetAnalyses, this.testSet);
     }
 
     private List<OpinionFinderAnalysis> fetchAnalysesForTweets(Collection<Tweet> tweets) {
@@ -137,13 +141,32 @@ public abstract class AnalysisExecutor {
             if (filtered.stream().noneMatch(duplicatedContent(tweet))) {
                 filtered.add(tweet);
             } else {
-                log.info("Duplicated content: {}", tweet.getContent());
+                log.debug("Duplicated content: {}", tweet.getContent());
             }
         }
         return filtered;
     }
 
+    private List<Tweet> filterOutNotClassifiableWithOpinionFinder(
+            List<Tweet> tweets, List<OpinionFinderAnalysis> analyses) {
+        return tweets.stream()
+                .filter(tweet -> {
+                    OpinionFinderAnalysis analysis = chooseByTweetId(analyses, tweet.getId());
+                    return categorySelector
+                            .select(analysis.getSubjectiveClues(), analysis.getPolarityClassifiers()).isPresent();
+                })
+                .collect(toList());
+    }
+
+    private List<OpinionFinderAnalysis> filterOutWhenTweetIdNotPresent(
+            List<OpinionFinderAnalysis> analyses, List<Tweet> tweets) {
+        return analyses.stream()
+                .filter(analysis -> tweets.stream().anyMatch(tweet -> analysis.getEntityId().equals(tweet.getId())))
+                .collect(toList());
+    }
+
     private Predicate<Tweet> duplicatedContent(Tweet tweet) {
-        return maybeDuplicatedContentTweet -> maybeDuplicatedContentTweet.getContent().equals(tweet.getContent());
+        return maybeDuplicatedContentTweet -> maybeDuplicatedContentTweet.getContent().toLowerCase()
+                .equals(tweet.getContent().toLowerCase());
     }
 }

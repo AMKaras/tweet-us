@@ -85,37 +85,44 @@ public class ComparativeAnalysisExecutor extends AnalysisExecutor {
 
         prepareTrainingSet(featureToggles.getBayesAnalysisTrainingSetSize());
         prepareTestSet(featureToggles.getBayesAnalysisTestSetSize());
-        final List<Tweet> deepTestSetCopy = deepCopy(testSet);
 
         log.info("Processing analyses to dictionary for Bayes and documents for KNN");
 
         if (nonLemmatizedModeEnabled) {
             nonLemmatizedDictionary = dictionaryBuilder.build(trainingSetAnalyses, classificationType, false);
-            log.info("Processed. Non lemmatized dictionary is {}", nonLemmatizedDictionary);
+            log.debug("Processed. Non lemmatized dictionary is {}", nonLemmatizedDictionary);
             nonLemmatizedDocuments = documentsBuilder.build(trainingSet, trainingSetAnalyses, classificationType, false);
-            log.info("Processed. Non lemmatized documents are {}", nonLemmatizedDocuments);
+            log.debug("Processed. Non lemmatized documents are {}", nonLemmatizedDocuments);
         }
         if (lemmatizedModeEnabled) {
             dictionary = dictionaryBuilder.build(trainingSetAnalyses, classificationType, true);
-            log.info("Processed. Dictionary is {}", dictionary);
+            log.debug("Processed. Dictionary is {}", dictionary);
             documents = documentsBuilder.build(trainingSet, trainingSetAnalyses, classificationType, true);
-            log.info("Processed. Documents are {}", documents);
+            log.debug("Processed. Documents are {}", documents);
         }
 
         if (nonLemmatizedModeEnabled) {
             log.info("Classifying using Bayes with lemmatization disabled:");
+            Stopwatch bayesSw = Stopwatch.createStarted();
             nonLemmatizedBayesClassifications = bayesAlgorithm.classify(deepCopy(testSet), nonLemmatizedDictionary, false);
+            log.info("Classification with Bayes algorithm and lemmatization disabled took {}", bayesSw.stop());
             featureToggles.getKnnAnalysisParameterK().forEach(k -> {
                 log.info("Classifying using KNN with k = {} and lemmatization disabled:", k);
+                Stopwatch knnSw = Stopwatch.createStarted();
                 nonLemmatizedKNNClassifications.add(knnAlgorithm.classify(deepCopy(testSet), nonLemmatizedDocuments, false, k));
+                log.info("Classification with KNN algorithm and lemmatization disabled took {}", knnSw.stop());
             });
         }
         if (lemmatizedModeEnabled) {
             log.info("Classifying using Bayes with lemmatization enabled:");
+            Stopwatch bayesSw = Stopwatch.createStarted();
             bayesClassifications = bayesAlgorithm.classify(deepCopy(testSet), dictionary, true);
+            log.info("Classification with Bayes algorithm and lemmatization enabled took {}", bayesSw.stop());
             featureToggles.getKnnAnalysisParameterK().forEach(k -> {
                 log.info("Classifying using KNN with k = {} and lemmatization enabled:", k);
+                Stopwatch knnSw = Stopwatch.createStarted();
                 knnClassifications.add(knnAlgorithm.classify(deepCopy(testSet), documents, true, k));
+                log.info("Classification with KNN algorithm and lemmatization enabled took {}", knnSw.stop());
             });
         }
 
@@ -140,7 +147,7 @@ public class ComparativeAnalysisExecutor extends AnalysisExecutor {
             });
         }
         try {
-            exporter.export(trainingSet, trainingSetAnalyses, testSet, deepTestSetCopy, testSetAnalyses,
+            exporter.export(trainingSet, trainingSetAnalyses, testSet, testSetAnalyses,
                     dictionary, nonLemmatizedDictionary, documents, nonLemmatizedDocuments,
                     bayesClassifications, nonLemmatizedBayesClassifications,
                     knnClassifications, nonLemmatizedKNNClassifications,

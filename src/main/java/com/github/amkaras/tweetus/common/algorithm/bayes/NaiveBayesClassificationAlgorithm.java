@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
-import static com.github.amkaras.tweetus.common.util.FiltersFactory.atLeastThreeTokens;
 import static com.github.amkaras.tweetus.common.util.Tokenizer.prepareTokens;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.reverseOrder;
@@ -47,7 +46,6 @@ public class NaiveBayesClassificationAlgorithm implements ClassificationAlgorith
         this.tweets = tweets;
         return tweets.stream()
                 .map(tweet -> entry(tweet, mapToTokens(lemmatizationEnabled).apply(tweet)))
-                .filter(atLeastThreeTokens())
                 .collect(toMap(Entry::getKey,
                         tweetWithTokens -> chooseMostProbableCategory(tweetWithTokens, dictionary)));
     }
