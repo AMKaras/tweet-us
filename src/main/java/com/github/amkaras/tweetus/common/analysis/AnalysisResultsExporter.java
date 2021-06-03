@@ -155,11 +155,11 @@ public class AnalysisResultsExporter {
     }
 
     private String getAlgorithmClassification(Tweet tweet, Map<Tweet, Optional<ClassificationCategory>> classifications) {
-        Optional<ClassificationCategory> maybeClassification = classifications.entrySet().stream()
+        Optional<Map.Entry<Tweet, Optional<ClassificationCategory>>> maybeEntry = classifications.entrySet().stream()
                 .filter(entry -> tweet.getId().equals(entry.getKey().getId()))
-                .findFirst()
-                .get()
-                .getValue();
+                .findFirst();
+        Optional<ClassificationCategory> maybeClassification = maybeEntry.isPresent() ?
+                maybeEntry.get().getValue() : Optional.empty();
         return maybeClassification.isPresent() ? maybeClassification.get().toString() : N_A;
     }
 
